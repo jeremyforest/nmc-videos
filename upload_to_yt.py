@@ -162,6 +162,8 @@ def get_videos_details_and_upload(df):
                 title = df.iloc[row_nb, :].title
                 file = f'videos/{title}_0_out.mp4'
                 description = df.iloc[row_nb, :].description
+                if pd.isna(df.iloc[row_nb, :].description):
+                    description = 'None'
                 category = '28'  # Science & Technology
                 keywords = 'NMC4, Neuromatch Conference 4'
                 privacyStatus = 'private'
