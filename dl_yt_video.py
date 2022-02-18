@@ -52,6 +52,8 @@ def dl_yt_video(file_path='videos/data.csv', download=True):
                     title = title.replace(':', '')
                 if '|' in title:
                     title = title.replace('|', '')
+                # if "'" in title:
+                #     title = title.replace("'", '')
 
                 if download == True:  # allows to just generate the summary file if set to false
                     try:
@@ -86,7 +88,7 @@ def dl_yt_video(file_path='videos/data.csv', download=True):
 
 def dl_yt_video_alternate(yt_video):
     '''
-    Started to code that as an alternative to PyTube when Youtube changed their
+    Started to code this as an alternative to PyTube when Youtube changed their
     code and Pytube stopped working just before the deadline for uploading
     videos. Leaving it here as a WIP alternative just in case we need it later.
     '''

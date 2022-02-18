@@ -20,13 +20,17 @@ from oauth2client.tools import argparser, run_flow
 httplib2.RETRIES = 1
 
 MAX_RETRIES = 10
-RETRIABLE_EXCEPTIONS = (httplib2.HttpLib2Error, IOError,
-                        http.client.NotConnected, http.client.IncompleteRead,
-                        http.client.ImproperConnectionState,
-                        http.client.CannotSendRequest,
-                        http.client.CannotSendHeader,
-                        http.client.ResponseNotReady,
-                        http.client.BadStatusLine)
+RETRIABLE_EXCEPTIONS = (
+    httplib2.HttpLib2Error,
+    IOError,
+    http.client.NotConnected,
+    http.client.IncompleteRead,
+    http.client.ImproperConnectionState,
+    http.client.CannotSendRequest,
+    http.client.CannotSendHeader,
+    http.client.ResponseNotReady,
+    http.client.BadStatusLine,
+)
 RETRIABLE_STATUS_CODES = [500, 502, 503, 504]
 
 CLIENT_SECRETS_FILE = "client_secrets.json"
@@ -38,9 +42,11 @@ VALID_PRIVACY_STATUSES = ("public", "private", "unlisted")
 
 
 def get_authenticated_service(data):
-    flow = flow_from_clientsecrets(CLIENT_SECRETS_FILE,
-                                   scope=YOUTUBE_UPLOAD_SCOPE,
-                                   message=MISSING_CLIENT_SECRETS_MESSAGE)
+    flow = flow_from_clientsecrets(
+        CLIENT_SECRETS_FILE,
+        scope=YOUTUBE_UPLOAD_SCOPE,
+        message=MISSING_CLIENT_SECRETS_MESSAGE,
+    )
 
     storage = Storage("%s-oauth2.json" % sys.argv[0])
     credentials = storage.get()
@@ -48,32 +54,35 @@ def get_authenticated_service(data):
     if credentials is None or credentials.invalid:
         credentials = run_flow(flow, storage, data)
 
-    return build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION,
-                 http=credentials.authorize(httplib2.Http()))
+    return build(
+        YOUTUBE_API_SERVICE_NAME,
+        YOUTUBE_API_VERSION,
+        http=credentials.authorize(httplib2.Http()),
+    )
 
 
 def initialize_upload(youtube, data):
     tags = None
-    if data['keywords']:
-        tags = data['keywords'].split(",")
+    if data["keywords"]:
+        tags = data["keywords"].split(",")
 
     body = dict(
         snippet=dict(
-            title=data['title'],
-            description=data['description'],
+            title=data["title"],
+            description=data["description"],
             tags=tags,
-            categoryId=data['category']
+            categoryId=data["category"],
         ),
-        status=dict(
-            privacyStatus=data['privacyStatus']
-        )
+        status=dict(privacyStatus=data["privacyStatus"]),
     )
 
     # Call the API's videos.insert method to create and upload the video.
     insert_request = youtube.videos().insert(
         part=",".join(list(body.keys())),
         body=body,
-        media_body=MediaFileUpload(data['file'], chunksize=-1, resumable=True)
+        media_body=MediaFileUpload(
+            data["file"], chunksize=-1, resumable=True
+        ),
     )
 
     response_id = resumable_upload(insert_request)
@@ -89,16 +98,23 @@ def resumable_upload(insert_request):
             print("Uploading file...")
             status, response = insert_request.next_chunk()
             if response is not None:
-                if 'id' in response:
-                    response_id = response['id']
-                    print("Video id '%s' was successfully uploaded." %
-                          response['id'])
+                if "id" in response:
+                    response_id = response["id"]
+                    print(
+                        "Video id '%s' was successfully uploaded."
+                        % response["id"]
+                    )
                 else:
-                    exit("The upload failed with an unexpected response: %s" % response)
+                    exit(
+                        "The upload failed with an unexpected response: %s"
+                        % response
+                    )
         except HttpError as e:
             if e.resp.status in RETRIABLE_STATUS_CODES:
-                error = "A retriable HTTP error %d occurred:\n%s" % (e.resp.status,
-                                                                     e.content)
+                error = "A retriable HTTP error %d occurred:\n%s" % (
+                    e.resp.status,
+                    e.content,
+                )
             else:
                 raise
         except RETRIABLE_EXCEPTIONS as e:
@@ -120,19 +136,19 @@ def resumable_upload(insert_request):
 def upload(file, title, description, category, keywords, privacyStatus):
 
     data = {
-        'auth_host_name': 'localhost',
-        'noauth_local_webserver': False,
-        'auth_host_port': [8080, 8090],
-        'logging_level': 'ERROR',
-        'file': file,
-        'title': title,
-        'description': description,
-        'category': category,
-        'keywords': keywords,
-        'privacyStatus': privacyStatus
+        "auth_host_name": "localhost",
+        "noauth_local_webserver": False,
+        "auth_host_port": [8080, 8090],
+        "logging_level": "ERROR",
+        "file": file,
+        "title": title,
+        "description": description,
+        "category": category,
+        "keywords": keywords,
+        "privacyStatus": privacyStatus,
     }
 
-    if not os.path.exists(data['file']):
+    if not os.path.exists(data["file"]):
         exit("Please specify a valid file path")
 
     youtube = get_authenticated_service(data)
@@ -144,40 +160,54 @@ def upload(file, title, description, category, keywords, privacyStatus):
 
 
 def get_videos_details_and_upload(df):
-    if 'upload' in df.columns:
+    if "upload" in df.columns:
         pass
     else:
-        df['upload'] = None
+        df["upload"] = None
 
-    if 'response_id' in df.columns:
+    if "response_id" in df.columns:
         pass
     else:
-        df['response_id'] = None
+        df["response_id"] = None
 
     for row_nb in range(df.shape[0]):
-        if df.loc[row_nb, 'upload'] == 'uploaded':
+        # row_nb = 0
+        if df.loc[row_nb, "upload"] == "uploaded":
             pass
         else:
             try:
-                title = df.iloc[row_nb, :].title
-                file = f'videos/{title}_0_out.mp4'
-                description = df.iloc[row_nb, :].description
+                _title = df.iloc[row_nb, :].talk_title
+                _combined_name = df.iloc[row_nb, :]["Combined Name"]
+                title = f"{_combined_name} : {_title}"
+                # youtube titles limited to 100 characters
+                title = f"{title[0:95]}..."
+                file = f"CC_talks/{df.iloc[row_nb, :].title}.mp4"
+                _description = df.iloc[row_nb, :].description
+                _institution = df.iloc[row_nb, :].Inst
+                _twitter = df.iloc[row_nb, :].Twitter
+                description = f"{_combined_name} - {_institution} - {_twitter} - {_description}"
                 if pd.isna(df.iloc[row_nb, :].description):
-                    description = 'None'
-                category = '28'  # Science & Technology
-                keywords = 'NMC4, Neuromatch Conference 4'
-                privacyStatus = 'private'
-                response_id = upload(file, title, description,
-                                     category, keywords, privacyStatus)
-                df.loc[row_nb, 'upload'] = 'uploaded'
-                df.loc[row_nb, 'response_id'] = response_id
+                    description = "None"
+                category = "28"  # Science & Technology
+                keywords = "NMC4, Neuromatch Conference 4"
+                privacyStatus = "private"
+                response_id = upload(
+                    file,
+                    title,
+                    description,
+                    category,
+                    keywords,
+                    privacyStatus,
+                )
+                df.loc[row_nb, "upload"] = "uploaded"
+                df.loc[row_nb, "response_id"] = response_id
             except:
-                df.loc[row_nb, 'upload'] = 'failed upload'
+                df.loc[row_nb, "upload"] = "failed upload"
                 pass
 
-    df.to_csv('videos/data.csv', index=False)
+    df.to_csv("CC_talks/TimeStamps - Sheet1.csv", index=False)
 
 
-if __name__ == '__main__':
-    df = pd.read_csv('videos/data.csv')
+if __name__ == "__main__":
+    df = pd.read_csv("CC_talks/TimeStamps - Sheet1.csv")
     get_videos_details_and_upload(df)

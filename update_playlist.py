@@ -60,13 +60,16 @@ if __name__ == '__main__':
 
     for row_nb in range(df.shape[0]):
         if df.loc[row_nb, 'updated_to_playlist'] == 'updated_to_playlist':
+            print('already updated to playlist')
             pass
         else:
             try:
-                df.iloc[row_nb, :].response_id
+                response_id = df.iloc[row_nb, :].response_id
                 add_video_to_playlist(youtube, response_id, playlist_id)
                 df.loc[row_nb, 'updated_to_playlist'] = 'updated_to_playlist'
+                print('updated to playlist')
             except:
                 df.loc[row_nb, 'updated_to_playlist'] = 'failed'
+                print('failed to update to playlist')
                 pass
     df.to_csv('videos/data.csv', index=False)

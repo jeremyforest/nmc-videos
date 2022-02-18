@@ -5,9 +5,11 @@ import datetime
 import dotenv
 import os
 
+
 def pad(x):
     if x is not None:
         return x + datetime.timedelta(seconds=4)
+
 
 def to_timedelta(ts):
     if (ts[0] == '-') or ('x' in ts.lower()):
@@ -24,26 +26,26 @@ def to_timedelta(ts):
 
 if __name__ == '__main__':
     dotenv.load_dotenv()
-    at = Airtable(os.getenv("AT_APP_KEY_ORANGE"), 
+    at = Airtable(os.getenv("AT_APP_KEY_ORANGE"),
                   "Session hosting",
                   os.getenv("AT_API_KEY"))
 
     for row in at.get_all():
         print(row)
-        if (('ts0_end' not in row['fields']) or 
-            ('ts1_end' not in row['fields']) or 
-            ('ts2_end' not in row['fields'])):
+        if (('ts0_end' not in row['fields']) or
+            ('ts1_end' not in row['fields']) or
+                ('ts2_end' not in row['fields'])):
             # Not annotated yet
             continue
 
         if 'manual_edit' in row['fields'] and row['fields']['manual_edit']:
             continue
 
-        cuts = [(to_timedelta(row['fields']['ts0_start']), 
-                 pad(to_timedelta(row['fields']['ts0_end']))), 
-                (to_timedelta(row['fields']['ts1_start']), 
-                 pad(to_timedelta(row['fields']['ts1_end']))), 
-                (to_timedelta(row['fields']['ts2_start']), 
+        cuts = [(to_timedelta(row['fields']['ts0_start']),
+                 pad(to_timedelta(row['fields']['ts0_end']))),
+                (to_timedelta(row['fields']['ts1_start']),
+                 pad(to_timedelta(row['fields']['ts1_end']))),
+                (to_timedelta(row['fields']['ts2_start']),
                  pad(to_timedelta(row['fields']['ts2_end'])))]
 
         print(cuts)
@@ -63,13 +65,13 @@ if __name__ == '__main__':
 
         if (os.path.exists(f'/mnt/d/cut_videos/{webinar}_0_out.mp4') or
             os.path.exists(f'/mnt/d/cut_videos/{webinar}_1_out.mp4') or
-            os.path.exists(f'/mnt/d/cut_videos/{webinar}_2_out.mp4') or 
+            os.path.exists(f'/mnt/d/cut_videos/{webinar}_2_out.mp4') or
             os.path.exists(f'/mnt/d/cut_videos/uploaded/{webinar}_0_out.mp4') or
             os.path.exists(f'/mnt/d/cut_videos/uploaded/{webinar}_1_out.mp4') or
             os.path.exists(f'/mnt/d/cut_videos/uploaded/{webinar}_2_out.mp4') or
             os.path.exists(f'/mnt/d/cut_videos/to_upload/{webinar}_0_out.mp4') or
             os.path.exists(f'/mnt/d/cut_videos/to_upload/{webinar}_1_out.mp4') or
-            os.path.exists(f'/mnt/d/cut_videos/to_upload/{webinar}_2_out.mp4')):
+                os.path.exists(f'/mnt/d/cut_videos/to_upload/{webinar}_2_out.mp4')):
             print(f"Skipping file {webinar}")
             continue
 

@@ -1,3 +1,14 @@
+# Project specific
+videos/
+manual_processing/
+CC_talks/
+BL_proxy/
+@eaDir/
+client_secrets.json
+data.csv
+update_playlist.py-oauth2.json
+upload_to_yt.py-oauth2.json
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
