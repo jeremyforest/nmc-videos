@@ -1,15 +1,12 @@
 # update 2021
 Below still applied. Env is out of date.
-Process is to query youtube videos from airtable ``, download them locally, 
-process them (sound, and adding splashscreen), then reupload to youtube and 
-add to the right playlist. 
-Creates a `data.csv` file to summarized failed/success at each step. 
+Process is to query youtube videos from airtable `get_yt_links_from_airtable.py`, download them locally,process them (sound, and adding splashscreen), then reupload to youtube and 
+add to the right playlist. Creates a `data.csv` file to summarized failed/success at each step. 
 
 Defintely some progress to make in the code to get it more robust.
 
-`pipeline.py` is still a work in progress. Was never really used yet.
-`get_yt_links_from_airtable` allow to query the video links from airtable 
-database.
+`pipeline.py` is still a work in progress. Was never really used yet. 
+`get_yt_links_from_airtable` allow to query the video links from airtable database.
 `dl_yt_video.py` download youtube videos locally to be processed.
 
 Minor updates to others code files to make it compatible with updated flow. 
