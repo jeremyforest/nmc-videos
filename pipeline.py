@@ -1,11 +1,31 @@
-from get_yt_links_from_airtable import get_info, load_airtable, save_to_df
-from dl_yt_video import dl_yt_video
-from upload_to_yt import get_videos_details_and_upload
-from cut_videos import cut_videos
-from update_playlist import get_authenticated_service, add_video_to_playlist
+
 import dotenv
 import os
 import pandas as pd
+from get_links_from_airtable import Airtable
+
+class NMC5_short_talk:
+    def __init__(self):
+        dotenv.load_dotenv()
+        self.AT_BASE_ID = os.getenv('AT_BASE_ID')
+        self.AT_API_KEY = os.getenv('AT_API_KEY')
+        self.AIRTABLE_TABLE_NAME = 'uploads_2022'
+        self.DATA_FILE_PATH = 'videos/'
+
+    def run(self):
+        # Getting WWN link from airtable
+        airtable = Airtable()
+        upload_tab = airtable.load_airtable(key=AT_API_KEY, base_id=AT_BASE_ID, table_name=TABLE_NAME)
+        video_links, emails = airtable.get_info(upload_tab, 'email', ' WWN_AWS_URL ')
+        print(f'======== Got {len(video_links)} video links ========')
+
+        # Save locally to be able to handle all the quirks
+        if os.path.exists('videos/data.csv'):
+            airtable.update_df(video_links, emails)
+        else:
+            airtable.save_to_df(video_links, emails)
+
+        # Load that local table and start processing
 
 
 class NMC4:
@@ -64,5 +84,5 @@ class NMC4:
 
 
 if __name__ == '__main__':
-    nmc4 = NMC4()
-    nmc4.run()
+    # nmc4 = NMC4()
+    # nmc4.run()
