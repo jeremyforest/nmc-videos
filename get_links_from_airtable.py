@@ -5,21 +5,20 @@ import pandas as pd
 
 
 class Airtable:
-    def __init__(self):
-        pass
+    def __init__(self, key:str, base_id:str):
+        self.key = key
+        self.base_id = base_id
 
-    def load_airtable(self, key, base_id, table_name):
+
+    def load_specific_table(self, table_name:str):
+        """Load the specified airtable base using your key
         """
-        load the specific airtable base using your key
+        return Table(key=self.key, base_id=self.base_id, table_name=table_name)
+
+
+    def get_info(self, airtable_tab:str, infos:dict):
+        """Get the info you want from the specified airtable tab
         """
-        at = Table(key, base_id, table_name)
-        return at
-
-    def get_info(self, airtable_tab, email_col_name, url_col_name):
-        """Get the minimal needed amount of data from airtable to later be able to re-upload youtube id and urls
-        based on email addresses"""
-        video_links, emails = [], []
-
         for record in range(len(airtable_tab.all())):
             talk = airtable_tab.all()[record]
             video_link = talk.get('fields').get(f'{url_col_name}')
@@ -65,7 +64,7 @@ if __name__ == '__main__':
     TABLE_NAME = 'uploads_2022'
 
     airtable = Airtable()
-    upload_tab = airtable.load_airtable(key=AT_API_KEY, base_id=AT_BASE_ID, table_name=TABLE_NAME)
+    upload_tupab = airtable.load_airtable(key=AT_API_KEY, base_id=AT_BASE_ID, table_name=TABLE_NAME)
     video_links, emails = airtable.get_info(upload_tab, 'email', ' WWN_AWS_URL ')
     if os.path.exists('videos/data.csv'):
         airtable.update_df(video_links, emails)
