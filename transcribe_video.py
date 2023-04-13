@@ -81,16 +81,14 @@ if __name__ == '__main__':
     audio = YT(youtube_url=url).download_audio_only()
     
     # Transcribe
-    transcriber = Transcriber(whisper_model='large-v2' ,audio_file=audio)
+    transcriber = Transcriber(whisper_model='small' ,audio_file=audio)
     transcription = transcriber.transcribe_audio()
     df_transcription = transcriber.text_to_df(transcription)
 
 
     # Translate
-    ################ TODO REMOVE TOKEN  !!!! ###############
     dotenv.load_dotenv()
     token = os.getenv('HF_TOKEN')
-    ########################################################
     traductor = Traductor(hf_token=token)
     traductor.translate(input = df_transcription)
 
